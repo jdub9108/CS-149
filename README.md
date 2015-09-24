@@ -18,3 +18,15 @@ Run a timer routine that gives out a random number of seconds. Generate a time s
 Show output for five of these iterations - running random numbers, assigning priority and process state and context switching with current process.
 
 You will also need to maintain a queue of processes that show eligibility to run next - does not show suspended or waiting processes.
+
+
+process table implementation
+20 pts
+null process implementation
+20 pts
+process priority and state generator impementation
+20 pts
+process queue implementation
+20 pts
+demo runs
+20 pts

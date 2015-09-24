@@ -22,11 +22,19 @@ You will also need to maintain a queue of processes that show eligibility to run
 
 process table implementation
 20 pts
+
+
 null process implementation
 20 pts
+
+
 process priority and state generator impementation
 20 pts
+
+
 process queue implementation
 20 pts
+
+
 demo runs
 20 pts

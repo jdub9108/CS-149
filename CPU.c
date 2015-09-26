@@ -141,6 +141,15 @@ void storeExample(int *pointer){
 	printRegisters();
 }
 
+/*
+ * Function:    nullProcess
+ * Purpose:     runs a null process so the scheduler is always busy
+ */
+void nullProcess(){
+    while(1)
+        ;// do nothing
+}
+
 struct process{
 	int id;
 	int state;

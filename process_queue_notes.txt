@@ -1,0 +1,81 @@
+/* The following code is adapted from Chapter 4 */
+
+
+struct	qentry	{
+	int32_t	qkey;		// key on which the queue is ordered
+	int16_t	qnext;		// index of next process or tail
+	int16_t	qprev;		// index of previous process or head
+};
+
+
+struct qentry queuetable[];
+
+
+/*------------------------------------------------------------------------
+ *  Remove a process from the front of a queue
+ *  q - ID of queue
+ *------------------------------------------------------------------------
+ */
+int32_t	getfirst(int16_t q)
+{
+	int32_t	head;
+	head = queuehead(q);
+	return getitem(queuetable[head].qnext);
+}
+
+/*------------------------------------------------------------------------
+ *  Remove a process from end of queue
+ *  q - ID of queue
+ *------------------------------------------------------------------------
+ */
+int32_t	getlast(int16_t q)
+{
+	int32_t tail;
+	tail = queuetail(q);
+	return getitem(queuetable[tail].qprev);
+}
+
+/*------------------------------------------------------------------------
+ *  Remove a process from an arbitrary point in a queue
+ *  pid - ID of process
+ *  q - ID of queue
+ *------------------------------------------------------------------------
+ */
+int32_t	getitem(int32_t	pid)
+{
+	int32_t	prev, next;
+	next = queuetable[pid].qnext;	//following node
+	prev = queuetable[pid].qprev;	//previous node
+	queuetable[prev].qnext = next;
+	queuetable[next].qprev = prev;
+	return pid;
+}
+
+int32_t enqueue(int32_t pid, int16_t q)
+{
+	int	tail, prev;		/* tail & previous node indexes	*/
+
+	tail = queuetail(q);
+	prev = queuetable[tail].qprev;
+
+	queuetable[pid].qnext  = tail;	/* insert just before tail node	*/
+	queuetable[pid].qprev  = prev;
+	queuetable[prev].qnext = pid;
+	queuetable[tail].qprev = pid;
+	return pid;
+}
+
+/*------------------------------------------------------------------------
+ *  dequeue  -  Remove and return the first process on a list
+ *  q - ID of queue
+ *------------------------------------------------------------------------
+ */
+int32_t dequeue(int16_t q)
+{
+	int32_t	pid;
+	pid = getfirst(q);
+	queuetable[pid].qprev = NULL;
+	queuetable[pid].qnext = NULL;
+	return pid;
+}
+/* Code is adapted from Chapter 4 */

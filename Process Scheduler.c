@@ -11,6 +11,7 @@
 
 int CPURegisters[RegAmount] = {};
 char *IS[isCount];
+FILE *f;
 
 /*------------------------------------------------------------------
  * Function:     printMemory
@@ -20,11 +21,11 @@ char *IS[isCount];
  * Return val:   void
  */
 void printMemory(int *pointer){
-	printf("Memory Array:\n");
+	fprintf(f, "Memory Array:\n");
 	int *i,j;
 	for(j=0, i=pointer; j<5; i++,j++)
-		printf("Position=%d\tValue=%d\n",i,*i);
-	printf("\n");
+		fprintf(f, "Position=%d\tValue=%d\n",i,*i);
+	fprintf(f,"\n");
 }
 
 /*------------------------------------------------------------------
@@ -35,11 +36,11 @@ void printMemory(int *pointer){
  * Return val:   void
  */
 void printRegisters(int RegArray[]){
-	printf("Register Values:\n");
+	fprintf(f,"Register Values:\n");
 	for(int i = 0; i < sizeof(RegArray)/sizeof(int); i++){
-		printf("Register %i: %i\n",i,RegArray[i]);
+		fprintf(f,"Register %i: %i\n",i,RegArray[i]);
 	}
-	printf("\n");
+	fprintf(f,"\n");
 }
 
 /*------------------------------------------------------------------
@@ -51,7 +52,7 @@ void printRegisters(int RegArray[]){
  
 /****   WORK IN PROGRESS      ***/
 void createIS(){
-	printf("Entering createIS\n");
+	fprintf(f,"Entering createIS\n");
 	const char *temp[] = {};
 	temp[0] = "NULL";
 	temp[1] = "FE 03 01";
@@ -64,15 +65,15 @@ void createIS(){
 	temp[8] = "EV 6";
 	temp[9] = "OD 7";
 	for (int j = 0; j < isCount; j++){
-		printf("Loop: %i\n",j);
+		fprintf(f,"Loop: %i\n",j);
 		IS[j] = malloc((ID_LEN+1) * sizeof(char*));
-		printf("Loop: %i",j);
+		fprintf(f,"Loop: %i",j);
 		/**
 			This is the part where it freezes
 			We just need to copy each item in temp into each memory position in IS
 		**/
 		strcpy(IS[j], temp[j]);
-		printf("Finished loop %i",j);
+		fprintf(f,"Finished loop %i",j);
 	}
 }
 
@@ -86,12 +87,12 @@ void createIS(){
  * Return val:   void
  */
 void fetch(int *pointer, int SrcPtr, int RegPos){
-	printf("Fetching data from Position %i in Memory and storing it in Register %i\n",SrcPtr,RegPos);
+	fprintf(f,"Fetching data from Position %i in Memory and storing it in Register %i\n",SrcPtr,RegPos);
 	int *i = pointer;
 	for(int j=0; j<SrcPtr; j++)
 		i++;
 	CPURegisters[RegPos] = *i;
-	printf("\n");
+	fprintf(f,"\n");
 }
 
 /*------------------------------------------------------------------
@@ -104,7 +105,7 @@ void fetch(int *pointer, int SrcPtr, int RegPos){
  * Return val:   void
  */
 void store(int *pointer, int RegPos, int DesPtr){
-	printf("Fetching data from Register %i and storing it in Position %i in Memory\n\n",RegPos,DesPtr);
+	fprintf(f,"Fetching data from Register %i and storing it in Position %i in Memory\n\n",RegPos,DesPtr);
 	int *i = pointer;
 	for(int j=0; j<DesPtr; j++)
 		i++;
@@ -163,7 +164,7 @@ void randomize(struct process *Processes){
 	/**
 		Intializing all other processes to random stats
 	**/
-	printf("Now randomizing values of Processes\n");
+	fprintf(f,"Now randomizing values of Processes\n");
 	srand(time(NULL));
 	for(int i = 2; i < ProcAmount; i++){
 		Processes[i].id = i;
@@ -216,7 +217,7 @@ void createProcesses(struct process *Processes){
  * Return val:   next: position of highest priority Process in Processes
  */
 int findNext(struct process *Processes){
-	printf("Finding highest priority Process\n");
+	fprintf(f,"Finding highest priority Process\n");
 	int next, highest = 0; 
 	for(int i = 2; i < ProcAmount; i++){
 		if(Processes[i].priority > highest){
@@ -234,7 +235,7 @@ int findNext(struct process *Processes){
  * Return val:   void
  */
 void setNext(struct process *Processes, int next){
-	printf("Replacing current Process values with highest priority Process values\n\n");
+	fprintf(f,"Replacing current Process values with highest priority Process values\n\n");
 	Processes[1].id = Processes[next].id;
 	Processes[1].state = Processes[next].state;
 	Processes[1].priority = Processes[next].priority;
@@ -253,13 +254,13 @@ void setNext(struct process *Processes, int next){
  * Return val:   void
  */
 void printCurrent(struct process *Processes){
-	printf("Printing current process values:\n");
-	printf("Current Process ID: %i\n",Processes[1].id);
-	printf("Current Process Priority: %i\n",Processes[1].priority);
-	printf("Current Process BasePtr: %i\n",Processes[1].basePtr);
-	printf("Current Process StackPtr: %i\n",Processes[1].stackPtr);
-	printf("Current Process PC: %i\n",Processes[1].PC);
-	printf("Current Process Registers: \n");
+	fprintf(f,"====\nCurrent Process\n====\n");
+	fprintf(f,"Current Process ID: %i\n",Processes[1].id);
+	fprintf(f,"Current Process Priority: %i\n",Processes[1].priority);
+	fprintf(f,"Current Process BasePtr: %i\n",Processes[1].basePtr);
+	fprintf(f,"Current Process StackPtr: %i\n",Processes[1].stackPtr);
+	fprintf(f,"Current Process PC: %i\n",Processes[1].PC);
+	fprintf(f,"Current Process Registers: \n");
 	printRegisters(Processes[1].RegArray);
 }
 
@@ -271,29 +272,47 @@ void printCurrent(struct process *Processes){
  */
 void printAllProcesses(struct process *Processes){
 	for(int i = 0; i < ProcAmount; i++){ 
-		printf("Process ID: %i\n",Processes[i].id);
-		printf("Process Priority: %i\n",Processes[i].priority);
-		printf("Process BasePtr: %i\n",Processes[i].basePtr);
-		printf("Process StackPtr: %i\n",Processes[i].stackPtr);
-		printf("Process PC: %i\n",Processes[i].PC);
-		printf("Process Registers: \n");
+		if(i == 0){
+			fprintf(f,"====\nNull Process\n====\n");
+		}
+		else if(i == 1){
+			fprintf(f,"====\nCurrent Process\n====\n");
+		}
+		fprintf(f,"Process ID: %i\n",Processes[i].id);
+		fprintf(f,"Process Priority: %i\n",Processes[i].priority);
+		fprintf(f,"Process BasePtr: %i\n",Processes[i].basePtr);
+		fprintf(f,"Process StackPtr: %i\n",Processes[i].stackPtr);
+		fprintf(f,"Process PC: %i\n",Processes[i].PC);
+		fprintf(f,"Process Registers: \n");
 		printRegisters(Processes[1].RegArray);
 	}
+}
+
+void createQueue(struct process *Processes){
+	int temp = [];
+	for(int i = 0; i < ProcAmount; i++){ 
+		
+	}
+}
+
+void example(struct process *Processes){
+	//Process values are already set to random. Can start randomized time demo here 
+	printCurrent(Processes);
+	setNext(Processes, findNext(Processes));
+	printCurrent(Processes);
 }
 
 int main()
 {
 	int *pointer = malloc(sizeof(int) * 5);
+	f = fopen("output.txt", "w");
 	//createIS();
 	struct process Processes[ProcAmount];
 	createProcesses(Processes);
 	randomize(Processes);
 	printAllProcesses(Processes);
 	
-	//Process values are already set to random. Can start randomized time demo here 
-	printCurrent(Processes);
-	setNext(Processes, findNext(Processes));
-	printCurrent(Processes);
+	example(Processes);
 	
 	
 	//Freeing all allocated memory
